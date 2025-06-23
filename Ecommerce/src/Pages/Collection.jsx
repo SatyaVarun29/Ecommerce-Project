@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { ShopContext } from "../Context/ShopContext";
-import { assets, products } from "../assets/frontend_assets/assets";
+import { assets } from "../assets/frontend_assets/assets";
 import Title from "../Components/Title";
 import ProductItem from "../Components/ProductItem";
 
@@ -9,8 +9,10 @@ const Collection = () => {
   const [showFilter, setShowfilter] = useState(false);
   const [filterproducts, setFilterproducts] = useState([]);
   const [category, setCategory] = useState([]);
-
   const [subCategory, setsubCategory] = useState([]);
+  const [sortby, setSortby] = useState("relavent");
+
+  const {search,showSearch}=useContext(ShopContext)
 
   const toggleChange = (e) => {
     if (category.includes(e.target.value)) {
@@ -29,23 +31,54 @@ const Collection = () => {
   };
 
   const applyFilter = () => {
-    let productsCopy = [...products]
+    let productsCopy = products.slice();
     console.log(productsCopy);
+
+    if(showSearch && search){
+      productsCopy=productsCopy.filter((item)=> item.name.toLowerCase().includes(search.toLowerCase()))
+    }
+   
+
+
     if (category.length > 0) {
-      productsCopy = productsCopy.filter((item) => category.includes(item.category));
+      productsCopy = productsCopy.filter((item) =>
+        category.includes(item.category)
+      );
     }
 
-    if(subCategory.length>0){
-      productsCopy=productsCopy.filter((item)=>subCategory.includes(item.subCategory))
+    if (subCategory.length > 0) {
+      productsCopy = productsCopy.filter((item) =>
+        subCategory.includes(item.subCategory)
+      );
     }
-    setFilterproducts(productsCopy)
+    setFilterproducts(productsCopy);
   };
 
-  
+  const sortProduct = () => {
+    let ProductCpy = filterproducts.slice()
+    
+    switch (sortby) {
+      case "low to high":
+        setFilterproducts(ProductCpy.sort((a, b) => a.price - b.price));
+        break;
 
+      case "high to low":
+      setFilterproducts(ProductCpy.sort((a, b) => b.price - a.price));
+        break;
+
+      default:
+        applyFilter();
+        break;
+    }
+    
+  };
+  useEffect(() => {
+    sortProduct();
+  }, [sortby]);
   useEffect(() => {
     applyFilter();
-  }, [category,subCategory]);
+  }, [category, subCategory,search,showSearch]);
+
 
   return (
     <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t">
@@ -141,7 +174,10 @@ const Collection = () => {
         <div className="flex justify-between text-base sm:text-2xl mb-4">
           <Title text1={"ALL"} text2={"COLLECTIONS"} />
           {/* product sort */}
-          <select className="border-2 border-gray-300 text-sm px-2">
+          <select
+            onChange={(e) => setSortby(e.target.value)}
+            className="border-2 border-gray-300 text-sm px-2"
+          >
             <option value="relavent">sort by:Relavent</option>
             <option value="low to high">sort by:Low to High</option>
             <option value="high to low">sort by:High to Low</option>
