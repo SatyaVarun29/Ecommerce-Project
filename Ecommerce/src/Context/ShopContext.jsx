@@ -11,14 +11,13 @@ const ShopContextProvider = ({ children }) => {
   const [showSearch, setShowsearch] = useState(false);
   const [cartItems, setCartitems] = useState({});
   console.log(cartItems);
-  
 
-  const addtocart = (itemId, size) => {
-    let cartData = structuredClone(cartItems);
-
+  const addtocart = async (itemId, size) => {
     if (!size) {
       toast.error("Select Product Size");
+      return;
     }
+    let cartData = structuredClone(cartItems);
 
     if (cartData[itemId]) {
       if (cartData[itemId][size]) {
@@ -34,26 +33,21 @@ const ShopContextProvider = ({ children }) => {
     setCartitems(cartData);
   };
 
-  const getcartcount=()=>{
-    let totalcount=0;
-    for(const items in cartItems){
-     for(const item in cartItems[items]){
-      try {
-         if(cartItems[items][item]>0){
-          totalcount+=cartItems[items][item]
-         }
-      } catch (error) {
-        console.log(error);
-        
+  const getcartcount = () => {
+    let totalcount = 0;
+    for (const items in cartItems) {
+      for (const item in cartItems[items]) {
+        try {
+          if (cartItems[items][item] > 0) {
+            totalcount += cartItems[items][item];
+          }
+        } catch (error) {
+          console.log(error);
+        }
       }
-     }
-     return totalcount
     }
-   
-  }
-  useEffect(() => {
-    console.log(cartItems);
-  }, [cartItems]);
+    return totalcount;
+  };
 
   const value = {
     products,
@@ -65,6 +59,7 @@ const ShopContextProvider = ({ children }) => {
     setShowsearch,
     cartItems,
     addtocart,
+    getcartcount,
   };
   console.log(products);
 
